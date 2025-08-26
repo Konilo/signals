@@ -1,0 +1,17 @@
+name: Leverage Rotation Strategy Signal
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
