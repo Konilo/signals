@@ -1,0 +1,41 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "sma_crossover ^990100-USD-STRD",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "signals/main.py",
+            "args": [
+                "sma_crossover",
+                "^990100-USD-STRD",
+                "200",
+                "09:00",
+                "16:30",
+                "America/New_York",
+            ],
+        },
+        {
+            "name": "sma_crossover ^SP500TR",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "signals/main.py",
+            "args": [
+                "sma_crossover",
+                "--ticker",
+                "^SP500TR",
+                "--lookback",
+                "200",
+                "--trading-hours-open",
+                "09:00",
+                "--trading-hours-close",
+                "16:30",
+                "--ticker-timezone",
+                "America/New_York",
+            ],
+        },
+    ]
+}

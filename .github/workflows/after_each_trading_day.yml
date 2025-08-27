@@ -1,0 +1,23 @@
+name: After Each Trading Day
+
+on:
+  push:
+  # schedule:
+  #   - cron: '0 22 * * 1-5'
+
+jobs:
+  probings:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe MSCI World for sma_crossover (200d)
+        run: |
+          docker run --rm $(docker build -q --target prod .) \
+            "sma_crossover" "^990100-USD-STRD" "200" "09:00" "16:30" "America/New_York"
+
+      - name: Probe S&P 500 for sma_crossover (200d)
+        run: |
+          docker run --rm $(docker build -q --target prod .) \
+            "sma_crossover" "^SP500TR" "200" "09:00" "16:30" "America/New_York"
