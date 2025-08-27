@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "github.vscode-github-actions",
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "hashicorp.terraform"
+    ]
+}
