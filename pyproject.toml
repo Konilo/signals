@@ -5,7 +5,9 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "dotenv>=0.9.9",
     "polars>=1.32.3",
+    "python-telegram-bot>=22.3",
     "typer>=0.16.1",
     "yfinance>=0.2.65",
 ]

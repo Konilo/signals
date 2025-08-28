@@ -1,0 +1,24 @@
+name: On Weekdays At 21:31 UTC (17:31 EDT/16:31 EST)
+
+on:
+  schedule:
+    # https://www.worldtimebuddy.com/?qm=1&lid=205,5,100,2988507&h=5&date=2025-8-28&sln=21-22&hf=0
+    - cron: '31 21 * * 1-5'
+
+jobs:
+  probings:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe MSCI World for sma_crossover (200d)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          docker run --rm \
+            --env TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
+            --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
+            $(docker build -q --target prod .) \
+            "sma_crossover" "^990100-USD-STRD" "200" "20:00" "16:30" "America/New_York"
