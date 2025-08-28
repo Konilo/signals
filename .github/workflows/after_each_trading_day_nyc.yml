@@ -1,10 +1,10 @@
 name: After Each Trading Day (17:30, New York)
 
 on:
-  push:
+  # push:
   schedule:
     # - cron: '31 22 * * 1-5'  # 22:31 UTC = 18:31 EST, 17:31 EDT
-    - cron: '0 0 * * 1-5'
+    - cron: '40,45,50 8 * * 1-5'
 
 jobs:
   probings:
