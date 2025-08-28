@@ -1,7 +1,8 @@
 import os
 
+import dotenv
 import typer
-from utils.utils import load_and_register_commands
+from utils.cli_utils import load_and_register_commands
 
 app = typer.Typer()
 load_and_register_commands(
@@ -28,4 +29,7 @@ def dummy_to_force_subcommand() -> None:
 
 
 if __name__ == "__main__":
+    # Only useful in dev
+    dotenv.load_dotenv()
+
     app()
