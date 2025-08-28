@@ -174,7 +174,5 @@ def sma_crossover(
     did_signal_change = state != previous_state
     price_sma_diff = (latest_price / latest_price_sma - 1) * 100
     logger.info(
-        f"did_signal_change = {did_signal_change}, price_sma_diff = {price_sma_diff}"
+        f"state = {state}, did_signal_change = {did_signal_change}, price_sma_diff = {price_sma_diff}"
     )
-
-    print()
