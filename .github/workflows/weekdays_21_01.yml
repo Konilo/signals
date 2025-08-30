@@ -13,12 +13,23 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Probe S&P 500 for sma_crossover (200d)
+        id: sma_probe
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          docker run --rm \
+          STATE_OUTPUT=$(docker run --rm \
             --env TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
             --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
             $(docker build -q --target prod .) \
-            "sma_crossover" "^SP500TR" "200" "09:00" "16:00" "America/New_York"
+            "sma_crossover" "^SP500TR" "200" "09:00" "16:00" "America/New_York" \
+            --upward-tolerance "3" \
+            --downward-tolerance "3" \
+            --previous-state "${{ vars.STATE_SP500TR_200_3_3 }}")
+          echo "state=$STATE_OUTPUT" >> $GITHUB_OUTPUT
+
+      - name: Update STATE repository variable
+        env:
+          GH_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
+        run: |
+          gh variable set STATE_SP500TR_200_3_3 --body "${{ steps.sma_probe.outputs.state }}"

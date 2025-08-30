@@ -95,18 +95,18 @@ def update_state(
     latest_price,
     latest_price_sma,
     upward_tolerance,
-    downard_tolerance,
+    downward_tolerance,
     previous_state,
 ):
     if previous_state is None or previous_state == "neutral":
         if latest_price > latest_price_sma * (1 + upward_tolerance / 100):
             return "above"
-        if latest_price < latest_price_sma * (1 - downard_tolerance / 100):
+        if latest_price < latest_price_sma * (1 - downward_tolerance / 100):
             return "below"
         else:
             return "neutral"
     elif previous_state == "above":
-        if latest_price > latest_price_sma * (1 - downard_tolerance / 100):
+        if latest_price > latest_price_sma * (1 - downward_tolerance / 100):
             return "above"
         else:
             return "below"
@@ -146,20 +146,20 @@ def sma_crossover(
     upward_tolerance: Annotated[
         float,
         typer.Option(
-            help="Starting from a 'Null', 'neutral', or 'below' state, the price must exceed 100 + <upward_tolerance>% of the SMA to trigger a signal"
+            help="Starting from a 'neutral', or 'below' state, the price must exceed 100 + <upward_tolerance>% of the SMA to trigger a signal"
         ),
     ] = 0,
-    downard_tolerance: Annotated[
+    downward_tolerance: Annotated[
         float,
         typer.Option(
-            help="Starting from a 'Null', 'neutral', or 'above' state, the price must fall below 100 - <downard_tolerance>% of the SMA to trigger a signal"
+            help="Starting from a 'neutral', or 'above' state, the price must fall below 100 - <downward_tolerance>% of the SMA to trigger a signal"
         ),
     ] = 0,
     previous_state: Annotated[
         str | None,
-        typer.Option(help="Last state: 'Null', 'neutral', 'below', or 'above'"),
-    ] = None,
-) -> None:
+        typer.Option(help="Last state: 'neutral', 'below', or 'above'"),
+    ] = "neutral",
+) -> str:
     """
     Monitor a ticker for crossovers of its close price and close price SMA
     """
@@ -181,7 +181,7 @@ def sma_crossover(
         latest_price,
         latest_price_sma,
         upward_tolerance,
-        downard_tolerance,
+        downward_tolerance,
         previous_state,
     )
 
@@ -200,10 +200,10 @@ def sma_crossover(
         message_state_change = f"State remains {state}."
     message = (
         message_emoji
-        + f"[{ticker}, SMA{lookback} crossover] "
+        + f"[{ticker}, SMA{lookback} crossover, {upward_tolerance}/{downward_tolerance}%]\n"
         + message_state_change
-        + f" {latest_date}: Price = {round(latest_price, 2)}, SMA = {round(latest_price_sma, 2)},"
-        + f" {round(price_sma_diff, 2)}% difference."
+        + "\n"
+        + f"{latest_date}: Price = {round(latest_price, 2)}, SMA{lookback} = {round(latest_price_sma, 2)}, {round(price_sma_diff, 2)}% difference."
     )
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     if not chat_id:
@@ -212,3 +212,8 @@ def sma_crossover(
     if not telegram_bot_token:
         raise ValueError("Missing TELEGRAM_BOT_TOKEN env var")
     send_message(chat_id=chat_id, message=message, token=telegram_bot_token)
+
+    # Print the state to stdout so it can be captured by the GitHub Action
+    print(state)
+
+    return state
