@@ -95,18 +95,18 @@ def update_state(
     latest_price,
     latest_price_sma,
     upward_tolerance,
-    downard_tolerance,
+    downward_tolerance,
     previous_state,
 ):
     if previous_state is None or previous_state == "neutral":
         if latest_price > latest_price_sma * (1 + upward_tolerance / 100):
             return "above"
-        if latest_price < latest_price_sma * (1 - downard_tolerance / 100):
+        if latest_price < latest_price_sma * (1 - downward_tolerance / 100):
             return "below"
         else:
             return "neutral"
     elif previous_state == "above":
-        if latest_price > latest_price_sma * (1 - downard_tolerance / 100):
+        if latest_price > latest_price_sma * (1 - downward_tolerance / 100):
             return "above"
         else:
             return "below"
@@ -149,10 +149,10 @@ def sma_crossover(
             help="Starting from a 'neutral', or 'below' state, the price must exceed 100 + <upward_tolerance>% of the SMA to trigger a signal"
         ),
     ] = 0,
-    downard_tolerance: Annotated[
+    downward_tolerance: Annotated[
         float,
         typer.Option(
-            help="Starting from a 'neutral', or 'above' state, the price must fall below 100 - <downard_tolerance>% of the SMA to trigger a signal"
+            help="Starting from a 'neutral', or 'above' state, the price must fall below 100 - <downward_tolerance>% of the SMA to trigger a signal"
         ),
     ] = 0,
     previous_state: Annotated[
@@ -181,7 +181,7 @@ def sma_crossover(
         latest_price,
         latest_price_sma,
         upward_tolerance,
-        downard_tolerance,
+        downward_tolerance,
         previous_state,
     )
 

@@ -28,11 +28,13 @@ jobs:
             --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
             $(docker build -q --target prod .) \
             "sma_crossover" "^SP500TR" "200" "09:00" "16:00" "America/New_York" \
-            --previous-state "${{ vars.STATE }}")
+            --upward-tolerance "3" \
+            --downward-tolerance "3" \
+            --previous-state "${{ vars.STATE_SP500TR_200_3_3 }}")
           echo "state=$STATE_OUTPUT" >> $GITHUB_OUTPUT
 
       - name: Update STATE repository variable
         env:
           GH_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
         run: |
-          gh variable set STATE --body "${{ steps.sma_probe.outputs.state }}"
+          gh variable set STATE_SP500TR_200_3_3 --body "${{ steps.sma_probe.outputs.state }}"
