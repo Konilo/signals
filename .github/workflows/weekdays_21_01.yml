@@ -33,13 +33,6 @@ jobs:
 
       - name: Update STATE repository variable
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
         run: |
           gh variable set STATE --body "${{ steps.sma_probe.outputs.state }}"
-      
-      - name: Update STATE repository variable (2nd method)
-        uses: action-pack/set-variable@v1
-        with:
-          name: 'STATE'
-          value: '${{ steps.sma_probe.outputs.state }}'
-          token: ${{ secrets.GITHUB_TOKEN }}
