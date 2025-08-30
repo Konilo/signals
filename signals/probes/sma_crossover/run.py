@@ -146,20 +146,20 @@ def sma_crossover(
     upward_tolerance: Annotated[
         float,
         typer.Option(
-            help="Starting from a 'Null', 'neutral', or 'below' state, the price must exceed 100 + <upward_tolerance>% of the SMA to trigger a signal"
+            help="Starting from a 'neutral', or 'below' state, the price must exceed 100 + <upward_tolerance>% of the SMA to trigger a signal"
         ),
     ] = 0,
     downard_tolerance: Annotated[
         float,
         typer.Option(
-            help="Starting from a 'Null', 'neutral', or 'above' state, the price must fall below 100 - <downard_tolerance>% of the SMA to trigger a signal"
+            help="Starting from a 'neutral', or 'above' state, the price must fall below 100 - <downard_tolerance>% of the SMA to trigger a signal"
         ),
     ] = 0,
     previous_state: Annotated[
         str | None,
-        typer.Option(help="Last state: 'Null', 'neutral', 'below', or 'above'"),
-    ] = None,
-) -> None:
+        typer.Option(help="Last state: 'neutral', 'below', or 'above'"),
+    ] = "neutral",
+) -> str:
     """
     Monitor a ticker for crossovers of its close price and close price SMA
     """
@@ -212,3 +212,5 @@ def sma_crossover(
     if not telegram_bot_token:
         raise ValueError("Missing TELEGRAM_BOT_TOKEN env var")
     send_message(chat_id=chat_id, message=message, token=telegram_bot_token)
+
+    return state
