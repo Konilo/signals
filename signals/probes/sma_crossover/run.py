@@ -200,10 +200,10 @@ def sma_crossover(
         message_state_change = f"State remains {state}."
     message = (
         message_emoji
-        + f"[{ticker}, SMA{lookback} crossover] "
+        + f"[{ticker}, SMA{lookback} crossover, {upward_tolerance}/{downward_tolerance}%]\n"
         + message_state_change
-        + f" {latest_date}: Price = {round(latest_price, 2)}, SMA = {round(latest_price_sma, 2)},"
-        + f" {round(price_sma_diff, 2)}% difference."
+        + "\n"
+        + f"{latest_date}: Price = {round(latest_price, 2)}, SMA{lookback} = {round(latest_price_sma, 2)}, {round(price_sma_diff, 2)}% difference."
     )
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
     if not chat_id:
