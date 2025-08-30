@@ -4,7 +4,6 @@ on:
   schedule:
     # https://www.worldtimebuddy.com/?qm=1&lid=205,5,100,2988507&h=5&date=2025-8-28&sln=21.5-22&hf=0
     - cron: '1 21 * * 1-5'
-  push:
 
 jobs:
   probings:
