@@ -213,4 +213,7 @@ def sma_crossover(
         raise ValueError("Missing TELEGRAM_BOT_TOKEN env var")
     send_message(chat_id=chat_id, message=message, token=telegram_bot_token)
 
+    # Print the state to stdout so it can be captured by the GitHub Action
+    print(state)
+
     return state
