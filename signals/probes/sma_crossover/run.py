@@ -7,7 +7,8 @@ import polars as pl
 import typer
 import yfinance as yf
 from typing_extensions import Annotated
-from utils.message_utils import send_message
+
+from signals.utils.signal_utils import send_message
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -159,7 +160,7 @@ def sma_crossover(
         str | None,
         typer.Option(help="Last state: 'neutral', 'below', or 'above'"),
     ] = "neutral",
-) -> str:
+) -> None:
     """
     Monitor a ticker for crossovers of its close price and close price SMA
     """
@@ -213,7 +214,5 @@ def sma_crossover(
         raise ValueError("Missing TELEGRAM_BOT_TOKEN env var")
     send_message(chat_id=chat_id, message=message, token=telegram_bot_token)
 
-    # Print the state to stdout so it can be captured by the GitHub Action
+    # Print state to stdout so it can be captured in bash which is needed for the GitHub workflows
     print(state)
-
-    return state
