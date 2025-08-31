@@ -59,4 +59,4 @@ Usage: main.py sma_crossover [OPTIONS] TICKER LOOKBACK TRADING_HOURS_OPEN
 
 Find VS Code Run and debug configs under `.vscode/launch.json`.
 
-Manage python dependencies with [uv](https://docs.astral.sh/uv/getting-started/features/#projects).
+Manage Python dependencies with [uv](https://docs.astral.sh/uv/getting-started/features/#projects) commands.
