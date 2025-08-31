@@ -6,7 +6,7 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  test:
+  testing:
     runs-on: ubuntu-latest
     
     steps:
