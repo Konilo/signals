@@ -7,8 +7,7 @@ import polars as pl
 import typer
 import yfinance as yf
 from typing_extensions import Annotated
-
-from signals.utils.signal_utils import send_message
+from utils.signal_utils import send_message
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
