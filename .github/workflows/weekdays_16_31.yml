@@ -1,0 +1,52 @@
+name: On Weekdays At 16:31 UTC (17:31 CET/18:31 CEST)
+
+on:
+  schedule:
+    # https://www.worldtimebuddy.com/?qm=1&lid=205,5,100,2988507,212&h=100&date=2025-9-5&sln=16.5-17&hf=0
+    - cron: '31 16 * * 1-5'
+
+jobs:
+  probings:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe CW8 for sma_crossover (200d)
+        id: sma_probe_cw8
+        env:
+            TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+            TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          STATE_OUTPUT=$(docker run --rm \
+            --env TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
+            --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
+            $(docker build -q --target prod .) \
+            "sma_crossover" "CW8.PA" "200" "09:00" "17:30" "Europe/Paris" \
+            --upward-tolerance "3" \
+            --downward-tolerance "3" \
+            --previous-state "${{ vars.STATE_CW8_PA_200_3_3 }}")
+          echo "state=$STATE_OUTPUT" >> $GITHUB_OUTPUT
+      
+      - name: Probe ESE for sma_crossover (200d)
+        id: sma_probe_ese
+        env:
+            TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+            TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          STATE_OUTPUT=$(docker run --rm \
+            --env TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
+            --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
+            $(docker build -q --target prod .) \
+            "sma_crossover" "ESE.PA" "200" "09:00" "17:30" "Europe/Paris" \
+            --upward-tolerance "3" \
+            --downward-tolerance "3" \
+            --previous-state "${{ vars.STATE_ESE_PA_200_3_3 }}")
+          echo "state=$STATE_OUTPUT" >> $GITHUB_OUTPUT
+
+      - name: Update STATE repository variables
+        env:
+          GH_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
+        run: |
+          gh variable set STATE_CW8_PA_200_3_3 --body "${{ steps.sma_probe_cw8.outputs.state }}"
+          gh variable set STATE_ESE_PA_200_3_3 --body "${{ steps.sma_probe_ese.outputs.state }}"
