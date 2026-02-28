@@ -1,5 +1,3 @@
-start_dev_container:
-	bash bin/start_dev_container.sh
 test_sma_crossover:
 	docker run --rm \
 		$$(docker build -q --target prod .) \
