@@ -1,0 +1,43 @@
+// https://containers.dev/implementors/json_reference/
+{
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "target": "development",
+        "context": ".."
+    },
+    // The Dockerfile dev stage is intentionally lean. Features below handle
+    // tooling setup operations that are independent from the project.
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils": {
+            "configureZshAsDefaultShell": true,
+            "username": "vscode"
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "charliermarsh.ruff",
+                "eamodio.gitlens",
+                "foxundermoon.shell-format",
+                "ms-python.debugpy",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "docker.docker",
+                "github.vscode-github-actions",
+                "Anthropic.claude-code"
+            ]
+        }
+    },
+    "postCreateCommand": "bash ./.devcontainer/postCreateCommand.sh",
+    "runArgs": [
+        "--env-file",
+        ".env"
+    ],
+    // Persisting the Claude Code sessions and settings
+    "mounts": [
+        "source=claude-code-config-${devcontainerId},target=/home/vscode/.claude,type=volume"
+    ],
+    "remoteUser": "vscode"
+}
