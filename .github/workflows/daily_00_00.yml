@@ -3,6 +3,7 @@ name: Daily close — BTC, at 00:00 UTC
 on:
   schedule:
     - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   probings:
@@ -11,13 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: astral-sh/setup-uv@v6
+
       - name: Daily close — BTC
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          docker run --rm \
-            --env TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
-            --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
-            $(docker build -q --target prod .) \
-            "daily_close" "BTC-EUR"
+          uv run python signals/main.py "daily_close" "BTC-EUR"
