@@ -50,7 +50,6 @@ python signals/main.py --help
 ```
 
 Get details about a specific probe like so:
-
 ```
 python signals/main.py sma_crossover --help
 Usage: main.py sma_crossover [OPTIONS] TICKER LOOKBACK TRADING_HOURS_OPEN
