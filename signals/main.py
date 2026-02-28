@@ -14,18 +14,10 @@ load_and_register_commands(
 )
 
 
-@app.callback()
-def dummy_to_force_subcommand() -> None:
-    """
-    This function exists because Typer won't let you force a single subcommand.
-    Since we know we will add other subcommands in the future and don't want to
-    break the interface, we have to use this workaround.
-
-    Delete this when a second subcommand is added.
-
-    https://github.com/fastapi/typer/issues/315#issuecomment-1142593959
-    """
-    pass
+# Note: previously a dummy @app.callback() was needed to force Typer to treat
+# the app as multi-command when only one subcommand existed.
+# It was removed once a second subcommand was added.
+# https://github.com/fastapi/typer/issues/315#issuecomment-1142593959
 
 
 if __name__ == "__main__":
