@@ -1,0 +1,36 @@
+name: Daily At 21:00 UTC (22:00 CET/23:00 CEST)
+
+on:
+  schedule:
+    # https://www.worldtimebuddy.com/?qm=1&lid=2988507&h=2988507&date=2025-9-5&sln=23-24&hf=0
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+
+jobs:
+  probings:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Strava runs to GCal
+        id: strava_to_gcal
+        env:
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          OUTPUT=$(uv run python signals/main.py \
+            "strava_to_gcal" "${{ vars.LAST_STRAVA_ACTIVITY_ID }}" "${{ vars.GCAL_ENDU_CALENDAR_ID }}")
+          echo "refresh_token=$(echo "$OUTPUT" | head -1)" >> $GITHUB_OUTPUT
+          echo "last_activity_id=$(echo "$OUTPUT" | tail -1)" >> $GITHUB_OUTPUT
+
+      - name: Update Strava refresh token and last activity ID
+        env:
+          GH_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
+        run: |
+          gh secret set STRAVA_REFRESH_TOKEN --body "${{ steps.strava_to_gcal.outputs.refresh_token }}"
+          gh variable set LAST_STRAVA_ACTIVITY_ID --body "${{ steps.strava_to_gcal.outputs.last_activity_id }}"
