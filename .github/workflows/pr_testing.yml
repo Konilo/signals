@@ -16,10 +16,5 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
-      - name: Set up Python
-        run: uv python install
-        # This will respect the Python version pinned in the project
-
       - name: Run all tests
         run: uv run python -m pytest signals/tests/ -v --tb=short
-        # The project's dependencies are implicitely installed
