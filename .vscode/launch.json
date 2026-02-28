@@ -26,6 +26,20 @@
             ],
         },
         {
+            "name": "daily_close Euronext Paris",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "internalConsole",
+            "program": "signals/main.py",
+            "args": [
+                "daily_close",
+                "DCAM.PA",
+                "CL2.PA",
+                "LWLD.PA",
+                "ESE.PA"
+            ],
+        },
+        {
             "name": "sma_crossover ^SP500TR",
             "type": "debugpy",
             "request": "launch",
