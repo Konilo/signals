@@ -30,6 +30,23 @@ Select **Reopen in Container**. Dependencies and extensions are installed automa
 List the probes like so:
 ```
 python signals/main.py --help
+
+ Usage: main.py [OPTIONS] COMMAND [ARGS]...
+
+╭─ Options ───────────────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current shell.     │
+│ --show-completion             Show completion for the current shell, to     │
+│                               copy it or customize the installation.        │
+│ --help                        Show this message and exit.                   │
+╰─────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ──────────────────────────────────────────────────────────────────╮
+│ daily_close      Monitor a list of tickers for previous close, close, and   │
+│                  daily return                                               │
+│ sma_crossover    Monitor a ticker for crossovers of its close price and     │
+│                  close price SMA                                            │
+│ strava_to_gcal   Probe Strava for new runs and create a Google Calendar     │
+│                  event for each one                                         │
+╰─────────────────────────────────────────────────────────────────────────────╯
 ```
 
 Get details about a specific probe like so:
@@ -39,7 +56,6 @@ Usage: main.py sma_crossover [OPTIONS] TICKER LOOKBACK TRADING_HOURS_OPEN
                               TRADING_HOURS_CLOSE TIMEZONE
 
  Monitor a ticker for crossovers of its close price and close price SMA
-
 
 ╭─ Arguments ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ *    ticker                   TEXT     Yahoo Finance ticker to probe [default: None] [required]                                                                            │
