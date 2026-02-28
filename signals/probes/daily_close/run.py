@@ -34,10 +34,12 @@ def get_close_data(ticker: str) -> tuple[float, float, str]:
 
 
 def daily_close(
-    tickers: Annotated[list[str], typer.Argument(help="Yahoo Finance tickers to monitor")],
+    tickers: Annotated[
+        list[str], typer.Argument(help="Yahoo Finance tickers to monitor")
+    ],
 ) -> None:
     """
-    Send previous close, close, and daily return for a list of tickers via Telegram
+    Monitor a list of tickers for previous close, close, and daily return
     """
     date_str = None
     lines = []
@@ -52,7 +54,9 @@ def daily_close(
             lines.append(
                 f"{ticker}  {prev_close:.2f} → {latest_close:.2f}  {sign}{daily_return:.2f}%"
             )
-            logger.info(f"{ticker}: prev={prev_close:.2f}, close={latest_close:.2f}, return={daily_return:.2f}%")
+            logger.info(
+                f"{ticker}: prev={prev_close:.2f}, close={latest_close:.2f}, return={daily_return:.2f}%"
+            )
         except Exception as e:
             logger.error(f"{ticker}: {e}")
             lines.append(f"{ticker}: error — {e}")
