@@ -18,23 +18,23 @@ Monitoring jobs are orchestrated by **GitHub workflows**. Each workflow correspo
 
 # Development setup
 
-Clone the repo and start the container used for development ([Docker](https://www.docker.com/) required):
+Clone the repo:
 ```
 git clone git@github.com:Konilo/signals.git
 cd signals
-make start_dev_container
+code .
 ```
 
-Once inside the container (using [VS Code](https://code.visualstudio.com/)), move to the `/app` directory and install the recommended extensions.
+Then open the folder in VS Code and select **Reopen in Container**. Dependencies and extensions are installed automatically ([Docker](https://www.docker.com/) required).
 
 List the probes like so:
 ```
-python /app/signals/main.py --help
+python signals/main.py --help
 ```
 
 Get details about a specific probe like so:
 ```
-python /app/signals/main.py sma_crossover --help
+python signals/main.py sma_crossover --help
 Usage: main.py sma_crossover [OPTIONS] TICKER LOOKBACK TRADING_HOURS_OPEN                                                                                                    
                               TRADING_HOURS_CLOSE TIMEZONE                                                                                                                    
                                                                                                                                                                               
