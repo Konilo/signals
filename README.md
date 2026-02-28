@@ -1,46 +1,46 @@
 # :mailbox: Signals
 
-Signals is a basic signaling tool which regularly probes some sources of information and sends signals accordingly. 
+Signals is a basic signaling tool which regularly probes some sources of information and sends signals accordingly.
 
 
 # Core concepts
 
-**Probing** is carried out by a **probe** which is a python script. 
+**Probing** is carried out by a **probe** which is a python script.
 
-**Signaling** is implemented via a Telegram chat bot sending messages. 
+**Signaling** is implemented via a Telegram chat bot sending messages.
 
 A probe, accompanied by a certain combination of **probing parameters** and a **schedule** defining the moments when probing and signaling should take place, constitutes a **monitoring job** (in reference to cron jobs).
 
 Conceptually, **monitoring** is the conjunction of probing and signaling accordingly. Signaling accordingly can mean not signaling at all.
 
-Monitoring jobs are orchestrated by **GitHub workflows**. Each workflow corresponds to one schedule and contains all the monitoring jobs with the same schedule. 
+Monitoring jobs are orchestrated by **GitHub workflows**. Each workflow corresponds to one schedule and contains all the monitoring jobs with the same schedule.
 
 
 # Development setup
 
-Clone the repo and start the container used for development ([Docker](https://www.docker.com/) required):
+Clone the repo and open it in VS Code:
 ```
 git clone git@github.com:Konilo/signals.git
 cd signals
-make start_dev_container
+code .
 ```
 
-Once inside the container (using [VS Code](https://code.visualstudio.com/)), move to the `/app` directory and install the recommended extensions.
+Select **Reopen in Container**. Dependencies and extensions are installed automatically ([Docker](https://www.docker.com/) required).
 
 List the probes like so:
 ```
-python /app/signals/main.py --help
+python signals/main.py --help
 ```
 
 Get details about a specific probe like so:
 ```
-python /app/signals/main.py sma_crossover --help
-Usage: main.py sma_crossover [OPTIONS] TICKER LOOKBACK TRADING_HOURS_OPEN                                                                                                    
-                              TRADING_HOURS_CLOSE TIMEZONE                                                                                                                    
-                                                                                                                                                                              
- Monitor a ticker for crossovers of its close price and close price SMA                                                                                                       
-                                                                                                                                                                              
-                                                                                                                                                                              
+python signals/main.py sma_crossover --help
+Usage: main.py sma_crossover [OPTIONS] TICKER LOOKBACK TRADING_HOURS_OPEN
+                              TRADING_HOURS_CLOSE TIMEZONE
+
+ Monitor a ticker for crossovers of its close price and close price SMA
+
+
 ╭─ Arguments ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ *    ticker                   TEXT     Yahoo Finance ticker to probe [default: None] [required]                                                                            │
 │ *    lookback                 INTEGER  Lookback window (in days) over which the SMA is computed [default: None] [required]                                                 │
