@@ -4,6 +4,7 @@ on:
   schedule:
     # https://www.worldtimebuddy.com/?qm=1&lid=205,5,100,2988507&h=5&date=2025-8-28&sln=21-22&hf=0
     - cron: '31 21 * * 1-5'
+  workflow_dispatch:
 
 jobs:
   probings:
@@ -12,13 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: astral-sh/setup-uv@v6
+
       - name: Daily close — US
         env:
-            TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-            TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          docker run --rm \
-            --env TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
-            --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
-            $(docker build -q --target prod .) \
-            "daily_close" "^VIX"
+          uv run python signals/main.py "daily_close" "^VIX"
