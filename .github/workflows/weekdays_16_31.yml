@@ -12,32 +12,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: astral-sh/setup-uv@v6
+
       - name: Probe CW8 for sma_crossover (200d)
         id: sma_probe_cw8
         env:
-            TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-            TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          STATE_OUTPUT=$(docker run --rm \
-            --env TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
-            --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
-            $(docker build -q --target prod .) \
+          STATE_OUTPUT=$(uv run python signals/main.py \
             "sma_crossover" "CW8.PA" "200" "09:00" "17:30" "Europe/Paris" \
             --upward-tolerance "3" \
             --downward-tolerance "3" \
             --previous-state "${{ vars.STATE_CW8_PA_200_3_3 }}")
           echo "state=$STATE_OUTPUT" >> $GITHUB_OUTPUT
-      
+
       - name: Probe ESE for sma_crossover (200d)
         id: sma_probe_ese
         env:
-            TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-            TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          STATE_OUTPUT=$(docker run --rm \
-            --env TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
-            --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
-            $(docker build -q --target prod .) \
+          STATE_OUTPUT=$(uv run python signals/main.py \
             "sma_crossover" "ESE.PA" "200" "09:00" "17:30" "Europe/Paris" \
             --upward-tolerance "3" \
             --downward-tolerance "3" \
@@ -53,11 +49,7 @@ jobs:
 
       - name: Daily close — Euronext
         env:
-            TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-            TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          docker run --rm \
-            --env TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
-            --env TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
-            $(docker build -q --target prod .) \
-            "daily_close" "DCAM.PA" "CL2.PA" "LWLD.PA" "ESE.PA"
+          uv run python signals/main.py "daily_close" "DCAM.PA" "CL2.PA" "LWLD.PA" "ESE.PA"
