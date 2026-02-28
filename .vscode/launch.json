@@ -40,6 +40,19 @@
             ],
         },
         {
+            "name": "strava_to_gcal",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "internalConsole",
+            "program": "signals/main.py",
+            "args": [
+                "strava_to_gcal",
+                "0",
+                "${env:GCAL_ENDU_CALENDAR_ID}"
+            ],
+            "envFile": "${workspaceFolder}/.env",
+        },
+        {
             "name": "sma_crossover ^SP500TR",
             "type": "debugpy",
             "request": "launch",
