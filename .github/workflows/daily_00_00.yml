@@ -1,4 +1,4 @@
-name: Daily close — BTC, at 00:00 UTC
+name: Daily At 00:00 UTC
 
 on:
   schedule:
