@@ -53,4 +53,4 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          uv run python signals/main.py "daily_close" "DCAM.PA" "CL2.PA" "LWLD.PA" "ESE.PA"
+          uv run python signals/main.py "daily_close" "DCAM.PA" "LWLD.PA" "ESE.PA" "CL2.PA"
