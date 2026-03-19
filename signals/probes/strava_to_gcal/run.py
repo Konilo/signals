@@ -105,7 +105,7 @@ def create_gcal_event(service, calendar_map: dict[str, str], activity: dict) -> 
     if sport_type == "Run" and activity["distance"] > 0:
         description = format_run_description(activity["distance"], activity["moving_time"])
     else:
-        description = format_duration_description(activity["moving_time"])
+        description = format_duration_description(activity["elapsed_time"])
 
     # start_date_local carries the Z suffix but represents local time — treat as naive
     start_dt = datetime.fromisoformat(activity["start_date_local"].replace("Z", ""))
