@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from datetime import datetime, timedelta
 
 import polars as pl
@@ -17,12 +18,17 @@ logger = logging.getLogger(__name__)
 
 
 def get_close_data(ticker: str) -> tuple[float, float, str]:
-    raw = yf.download(
-        ticker,
-        interval="1d",
-        start=(datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d"),
-    )
-    if raw is None or len(raw) < 2:
+    for attempt in range(3):
+        raw = yf.download(
+            ticker,
+            interval="1d",
+            start=(datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d"),
+        )
+        if raw is not None and len(raw) >= 2:
+            break
+        if attempt < 2:
+            time.sleep(5)
+    else:
         raise ValueError(f"Insufficient data for {ticker}")
     raw.reset_index(inplace=True)
     raw.columns = [col[0] for col in raw.columns]
