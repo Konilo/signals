@@ -102,7 +102,7 @@ def create_gcal_event(service, calendar_map: dict[str, str], activity: dict) -> 
     summary = SPORT_SUMMARIES[sport_type]
     calendar_id = calendar_map[sport_type]
 
-    if sport_type == "Run":
+    if sport_type == "Run" and activity["distance"] > 0:
         description = format_run_description(activity["distance"], activity["moving_time"])
     else:
         description = format_duration_description(activity["moving_time"])
