@@ -3,18 +3,20 @@
 Signals is a basic signaling tool which regularly probes some sources of information and sends signals accordingly.
 
 
-# Core concepts
+# Ontology & architecture
 
-**Probing** is carried out by a **probe** which is a python script.
-
-**Signaling** is implemented via a Telegram chat bot sending messages.
-
-A probe, accompanied by a certain combination of **probing parameters** and a **schedule** defining the moments when probing and signaling should take place, constitutes a **monitoring job** (in reference to cron jobs).
-
-Conceptually, **monitoring** is the conjunction of probing and signaling accordingly. Signaling accordingly can mean not signaling at all.
-
-Monitoring jobs are orchestrated by **GitHub workflows**. Each workflow corresponds to one schedule and contains all the monitoring jobs with the same schedule.
-
+```mermaid
+graph TD
+    Workflow["GitHub workflow<br/>(.github/workflows/xyz.yml)"] -->|runs on and maps 1:1 to a| Schedule["Schedule<br/>(cron)"]
+    Workflow -->|**groups all monitoring jobs with the same schedule, 1:N**| Job["Monitoring job<br/>(Unique combination of a schedule, a probe, & a set of params)"]
+    Job -->|uses a| Probe["Probe<br/>(Python script)"]
+    Job -->|is configured by| Params["Probing parameters"]
+    Params -->|are fed to a| Probe
+    Job -->|runs on a| Schedule
+    Probe -->|probes a| Source["Source<br/>(yfinance, Strava)"]
+    Probe -->|emits, or not, a| Signal["Signal<br/>(text message)"]
+    Signal -->|is delivered to a| Chat["Messaging app<br/>(Telegram)"]
+```
 
 # Development setup
 
