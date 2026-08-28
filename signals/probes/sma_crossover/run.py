@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -18,15 +19,20 @@ logger = logging.getLogger(__name__)
 
 
 def get_raw_ohlcv(ticker, lookback, timezone):
-    ohlcv_raw = yf.download(
-        ticker,
-        interval="1d",
-        start=(
-            # Multiplying lookback by 2 to ensure that the period contains enough trading days
-            datetime.now(tz=ZoneInfo(timezone)) - timedelta(days=lookback * 2)
-        ).strftime("%Y-%m-%d"),
-    )
-    if ohlcv_raw is None:
+    for attempt in range(3):
+        ohlcv_raw = yf.download(
+            ticker,
+            interval="1d",
+            start=(
+                # Multiplying lookback by 2 to ensure that the period contains enough trading days
+                datetime.now(tz=ZoneInfo(timezone)) - timedelta(days=lookback * 2)
+            ).strftime("%Y-%m-%d"),
+        )
+        if ohlcv_raw is not None and not ohlcv_raw.empty:
+            break
+        if attempt < 2:
+            time.sleep(5)
+    else:
         raise ValueError("Ticker download from Yahoo Finance failed")
     ohlcv_raw.reset_index(inplace=True)
     ohlcv_raw.columns = [col[0] for col in ohlcv_raw.columns]
@@ -59,6 +65,17 @@ def get_latest_price_and_sma(
 ):
     ohlcv = pl.DataFrame(ohlcv_raw)
     ohlcv = ohlcv.sort("Date", descending=False)
+
+    # Yahoo Finance occasionally returns rows carrying a volume but null OHLC
+    # values. Such a row would propagate through the rolling mean and null out
+    # the SMA, so it is dropped rather than allowed to fail the probe.
+    complete_ohlcv = ohlcv.filter(
+        pl.col("Close").is_not_null() & pl.col("Close").is_not_nan()
+    )
+    dropped_rows = ohlcv.height - complete_ohlcv.height
+    if dropped_rows:
+        logger.warning(f"Dropped {dropped_rows} row(s) with a null close price")
+    ohlcv = complete_ohlcv
 
     is_market_open = get_is_market_open(
         trading_hours_open,

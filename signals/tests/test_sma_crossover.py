@@ -232,15 +232,37 @@ class TestGetRawOhlcv:
         assert "Close" in result.columns
         assert len(result) == 3
 
+    @patch("signals.probes.sma_crossover.run.time.sleep")
     @patch("signals.probes.sma_crossover.run.yf.download")
-    def test_get_raw_ohlcv_failure(self, mock_download):
-        """Test handling of yfinance download failure."""
+    def test_get_raw_ohlcv_failure(self, mock_download, mock_sleep):
+        """Test handling of yfinance download failure after every retry."""
         mock_download.return_value = None
 
         with pytest.raises(
             ValueError, match="Ticker download from Yahoo Finance failed"
         ):
             get_raw_ohlcv("INVALID", 30, "America/New_York")
+
+        assert mock_download.call_count == 3
+
+    @patch("signals.probes.sma_crossover.run.time.sleep")
+    @patch("signals.probes.sma_crossover.run.yf.download")
+    def test_get_raw_ohlcv_retries_on_empty_download(self, mock_download, mock_sleep):
+        """Test that an empty first response is retried before succeeding."""
+        mock_data = pd.DataFrame(
+            {
+                ("Close", "AAPL"): [150.0, 151.0],
+                ("Volume", "AAPL"): [1000000, 1100000],
+            }
+        )
+        mock_data.index = pd.to_datetime(["2024-01-01", "2024-01-02"])
+        mock_data.index.name = "Date"
+        mock_download.side_effect = [pd.DataFrame(), mock_data]
+
+        result = get_raw_ohlcv("AAPL", 30, "America/New_York")
+
+        assert mock_download.call_count == 2
+        assert len(result) == 2
 
 
 class TestGetIsMarketOpen:
@@ -334,6 +356,32 @@ class TestGetLatestPriceAndSma:
         assert latest_close == 108
         # SMA of last 5 prices excluding current day: (104+105+106+107+108)/5
         assert latest_sma == 106.0
+
+    @patch("signals.probes.sma_crossover.run.get_is_market_open")
+    def test_null_close_rows_are_dropped(self, mock_market_open):
+        """Test that rows with a null close price do not null out the SMA."""
+        mock_market_open.return_value = False
+
+        # Yahoo Finance sometimes returns a trailing row with a volume but no
+        # OHLC values, which used to propagate through the rolling mean
+        test_data = pd.DataFrame(
+            {
+                "Date": pd.date_range("2024-01-01", periods=11, freq="D"),
+                "Close": [100 + i for i in range(10)] + [float("nan")],
+                "Open": [99 + i for i in range(10)] + [float("nan")],
+                "High": [101 + i for i in range(10)] + [float("nan")],
+                "Low": [98 + i for i in range(10)] + [float("nan")],
+                "Volume": [1000000] * 11,
+            }
+        )
+
+        latest_close, latest_sma, latest_date = get_latest_price_and_sma(
+            test_data, 5, "09:00", "16:30", "America/New_York"
+        )
+
+        assert latest_close == 109
+        assert latest_sma == 107.0
+        assert latest_date == date(2024, 1, 10)
 
     def test_insufficient_data_raises_error(self):
         """Test that insufficient data raises ValueError."""
