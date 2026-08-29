@@ -17,6 +17,28 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def get_close_prices(raw) -> pl.DataFrame | None:
+    """
+    Turn a yfinance download into a Date/Close frame, dropping incomplete rows
+
+    Yahoo Finance occasionally returns rows carrying a volume but no close
+    price. Those rows are unusable here, so they are dropped and the caller
+    decides whether enough data is left.
+    """
+    if raw is None or raw.empty:
+        return None
+    raw = raw.reset_index()
+    raw.columns = [col[0] for col in raw.columns]
+    df = pl.from_pandas(raw).select(["Date", "Close"]).sort("Date")
+    complete_df = df.filter(
+        pl.col("Close").is_not_null() & pl.col("Close").is_not_nan()
+    )
+    dropped_rows = df.height - complete_df.height
+    if dropped_rows:
+        logger.warning(f"Dropped {dropped_rows} row(s) with a null close price")
+    return complete_df
+
+
 def get_close_data(ticker: str) -> tuple[float, float, str]:
     for attempt in range(3):
         raw = yf.download(
@@ -24,15 +46,13 @@ def get_close_data(ticker: str) -> tuple[float, float, str]:
             interval="1d",
             start=(datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d"),
         )
-        if raw is not None and len(raw) >= 2:
+        df = get_close_prices(raw)
+        if df is not None and df.height >= 2:
             break
         if attempt < 2:
             time.sleep(5)
     else:
         raise ValueError(f"Insufficient data for {ticker}")
-    raw.reset_index(inplace=True)
-    raw.columns = [col[0] for col in raw.columns]
-    df = pl.from_pandas(raw).select(["Date", "Close"]).sort("Date")
     prev_close = df["Close"][-2]
     latest_close = df["Close"][-1]
     latest_date = str(df["Date"][-1])[:10]
