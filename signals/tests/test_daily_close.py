@@ -31,16 +31,18 @@ class TestGetCloseData:
         assert latest_close == pytest.approx(45.80)
         assert latest_date == "2024-01-10"
 
+    @patch("signals.probes.daily_close.run.time.sleep")
     @patch("signals.probes.daily_close.run.yf.download")
-    def test_download_returns_none_raises(self, mock_download):
+    def test_download_returns_none_raises(self, mock_download, mock_sleep):
         """Test that a None return from yfinance raises ValueError."""
         mock_download.return_value = None
 
         with pytest.raises(ValueError, match="Insufficient data for DCAM.PA"):
             get_close_data("DCAM.PA")
 
+    @patch("signals.probes.daily_close.run.time.sleep")
     @patch("signals.probes.daily_close.run.yf.download")
-    def test_fewer_than_two_rows_raises(self, mock_download):
+    def test_fewer_than_two_rows_raises(self, mock_download, mock_sleep):
         """Test that fewer than 2 rows raises ValueError."""
         mock_data = pd.DataFrame(
             {
@@ -54,6 +56,55 @@ class TestGetCloseData:
 
         with pytest.raises(ValueError, match="Insufficient data for DCAM.PA"):
             get_close_data("DCAM.PA")
+
+    @patch("signals.probes.daily_close.run.yf.download")
+    def test_null_close_rows_are_dropped(self, mock_download):
+        """Test that a trailing row with no close price is ignored."""
+        # Yahoo Finance sometimes returns a row carrying a volume but no OHLC
+        # values, which used to make the daily return computation fail
+        mock_data = pd.DataFrame(
+            {
+                ("Close", "DCAM.PA"): [45.20, 45.80, float("nan")],
+                ("Volume", "DCAM.PA"): [100000, 110000, 120000],
+            }
+        )
+        mock_data.index = pd.to_datetime(["2024-01-09", "2024-01-10", "2024-01-11"])
+        mock_data.index.name = "Date"
+        mock_download.return_value = mock_data
+
+        prev_close, latest_close, latest_date = get_close_data("DCAM.PA")
+
+        assert prev_close == pytest.approx(45.20)
+        assert latest_close == pytest.approx(45.80)
+        assert latest_date == "2024-01-10"
+        assert mock_download.call_count == 1
+
+    @patch("signals.probes.daily_close.run.time.sleep")
+    @patch("signals.probes.daily_close.run.yf.download")
+    def test_too_many_null_close_rows_are_retried(self, mock_download, mock_sleep):
+        """Test that dropping null closes below 2 rows triggers a retry."""
+        incomplete_data = pd.DataFrame(
+            {
+                ("Close", "DCAM.PA"): [45.20, float("nan")],
+                ("Volume", "DCAM.PA"): [100000, 110000],
+            }
+        )
+        incomplete_data.index = pd.to_datetime(["2024-01-09", "2024-01-10"])
+        incomplete_data.index.name = "Date"
+        complete_data = pd.DataFrame(
+            {
+                ("Close", "DCAM.PA"): [45.20, 45.80],
+                ("Volume", "DCAM.PA"): [100000, 110000],
+            }
+        )
+        complete_data.index = pd.to_datetime(["2024-01-09", "2024-01-10"])
+        complete_data.index.name = "Date"
+        mock_download.side_effect = [incomplete_data, complete_data]
+
+        prev_close, latest_close, latest_date = get_close_data("DCAM.PA")
+
+        assert mock_download.call_count == 2
+        assert latest_close == pytest.approx(45.80)
 
 
 class TestDailyCloseIntegration:
