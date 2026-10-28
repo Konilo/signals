@@ -28,29 +28,15 @@ jobs:
             --previous-state "${{ vars.STATE_CW8_PA_200_3_3 }}")
           echo "state=$STATE_OUTPUT" >> $GITHUB_OUTPUT
 
-      - name: Probe ESE for sma_crossover (200d)
-        id: sma_probe_ese
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          STATE_OUTPUT=$(uv run python signals/main.py \
-            "sma_crossover" "ESE.PA" "200" "09:00" "17:30" "Europe/Paris" \
-            --upward-tolerance "3" \
-            --downward-tolerance "3" \
-            --previous-state "${{ vars.STATE_ESE_PA_200_3_3 }}")
-          echo "state=$STATE_OUTPUT" >> $GITHUB_OUTPUT
-
       - name: Update STATE repository variables
         env:
           GH_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
         run: |
           gh variable set STATE_CW8_PA_200_3_3 --body "${{ steps.sma_probe_cw8.outputs.state }}"
-          gh variable set STATE_ESE_PA_200_3_3 --body "${{ steps.sma_probe_ese.outputs.state }}"
 
       - name: Daily close — Euronext
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          uv run python signals/main.py "daily_close" "DCAM.PA" "LWLD.PA" "ESE.PA" "CL2.PA"
+          uv run python signals/main.py "daily_close" "DCAM.PA" "LWLD.PA"
