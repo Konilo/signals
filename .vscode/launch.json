@@ -34,8 +34,7 @@
             "args": [
                 "daily_close",
                 "DCAM.PA",
-                "LWLD.PA",
-                "ESE.PA"
+                "LWLD.PA"
             ],
         },
         {
